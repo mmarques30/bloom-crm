@@ -1,18 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Topbar } from "@/components/topbar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { ensurePermission } from "@/lib/permission-guard";
 
-export const Route = createFileRoute("/_app/configuracoes")({
+export const Route = createFileRoute("/_authenticated/configuracoes")({
+  beforeLoad: async () => {
+    if (!(await ensurePermission("screen.configuracoes"))) throw redirect({ to: "/sem-acesso" });
+  },
   component: SettingsPage,
-  head: () => ({
-    meta: [
-      { title: "Configurações · Star CRM" },
-      { name: "description", content: "Perfil, equipe e preferências do workspace." },
-    ],
-  }),
+  head: () => ({ meta: [{ title: "Configurações · Star CRM" }] }),
 });
 
 function SettingsPage() {
@@ -24,10 +23,10 @@ function SettingsPage() {
           <h2 className="font-display text-xl">Perfil</h2>
           <p className="text-xs text-muted-foreground">Estas informações aparecem para sua equipe.</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <Field label="Nome" defaultValue="Ana Costa" />
-            <Field label="Cargo" defaultValue="Head of Content" />
-            <Field label="E-mail" defaultValue="ana@starcrm.co" />
-            <Field label="Telefone" defaultValue="+55 11 99999-0000" />
+            <Field label="Nome" defaultValue="—" />
+            <Field label="Cargo" defaultValue="—" />
+            <Field label="E-mail" defaultValue="—" />
+            <Field label="Telefone" defaultValue="—" />
           </div>
           <div className="mt-6 flex justify-end">
             <Button className="pill">Salvar alterações</Button>

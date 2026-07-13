@@ -1,7 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Topbar } from "@/components/topbar";
+import { ensurePermission } from "@/lib/permission-guard";
 
-export const Route = createFileRoute("/_app/calendario")({
+export const Route = createFileRoute("/_authenticated/calendario")({
+  beforeLoad: async () => {
+    if (!(await ensurePermission("screen.calendario"))) throw redirect({ to: "/sem-acesso" });
+  },
   component: CalendarPage,
   head: () => ({
     meta: [

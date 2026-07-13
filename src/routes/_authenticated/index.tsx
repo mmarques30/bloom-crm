@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Topbar } from "@/components/topbar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -16,8 +16,14 @@ import {
   Megaphone,
   Send,
 } from "lucide-react";
+import { ensurePermission } from "@/lib/permission-guard";
 
-export const Route = createFileRoute("/_app/")({
+export const Route = createFileRoute("/_authenticated/")({
+  beforeLoad: async () => {
+    if (!(await ensurePermission("screen.dashboard"))) {
+      throw redirect({ to: "/sem-acesso" });
+    }
+  },
   component: Dashboard,
   head: () => ({
     meta: [
@@ -51,22 +57,16 @@ const quickActions = [
 function Dashboard() {
   return (
     <>
-      <Topbar
-        title="Bom dia, Ana"
-        subtitle="Você tem 4 aprovações pendentes e 12 posts agendados para hoje."
-      />
+      <Topbar title="Bom dia" subtitle="Você tem 4 aprovações pendentes e 12 posts agendados para hoje." />
 
       <div className="grid gap-5 p-6 xl:grid-cols-12">
-        {/* Agenda */}
         <section className="xl:col-span-7 rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="font-display text-xl">Agenda de hoje</h2>
               <p className="text-xs text-muted-foreground">Terça, 14 de julho</p>
             </div>
-            <Button variant="ghost" size="sm" className="pill text-primary hover:text-primary">
-              Ver tudo
-            </Button>
+            <Button variant="ghost" size="sm" className="pill text-primary hover:text-primary">Ver tudo</Button>
           </div>
           <ul className="divide-y divide-border">
             {schedule.map((item) => (
@@ -82,7 +82,6 @@ function Dashboard() {
           </ul>
         </section>
 
-        {/* Quick actions */}
         <section className="xl:col-span-5 rounded-2xl border border-border bg-card p-5">
           <h2 className="font-display text-xl">Ações rápidas</h2>
           <p className="mb-4 text-xs text-muted-foreground">Atalhos para o que você mais faz.</p>
@@ -101,7 +100,6 @@ function Dashboard() {
           </div>
         </section>
 
-        {/* Impact block (ink) */}
         <section className="xl:col-span-5 rounded-2xl card-ink p-6">
           <div className="text-[11px] uppercase tracking-[0.18em] text-white/60">Impacto do mês</div>
           <div className="mt-2 flex items-baseline gap-3">
@@ -111,7 +109,6 @@ function Dashboard() {
             </div>
           </div>
           <p className="mt-1 text-sm text-white/60">Alcance combinado em todos os canais.</p>
-
           <div className="mt-6 grid grid-cols-3 gap-4">
             <MiniStat label="Engajamento" value="6.8%" />
             <MiniStat label="Novos seguidores" value="+9.1k" />
@@ -119,7 +116,6 @@ function Dashboard() {
           </div>
         </section>
 
-        {/* Channel performance */}
         <section className="xl:col-span-7 rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center justify-between">
             <div>

@@ -9,215 +9,271 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AppRouteImport } from './routes/_app'
-import { Route as AppIndexRouteImport } from './routes/_app.index'
-import { Route as AppConfiguracoesRouteImport } from './routes/_app.configuracoes'
-import { Route as AppClientesRouteImport } from './routes/_app.clientes'
-import { Route as AppCampanhasRouteImport } from './routes/_app.campanhas'
-import { Route as AppCalendarioRouteImport } from './routes/_app.calendario'
-import { Route as AppAnalyticsRouteImport } from './routes/_app.analytics'
-import { Route as AppAjudaRouteImport } from './routes/_app.ajuda'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedSemAcessoRouteImport } from './routes/_authenticated/sem-acesso'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
+import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
+import { Route as AuthenticatedCampanhasRouteImport } from './routes/_authenticated/campanhas'
+import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
+import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
+import { Route as AuthenticatedAjudaRouteImport } from './routes/_authenticated/ajuda'
+import { Route as AuthenticatedAdministracaoRouteImport } from './routes/_authenticated/administracao'
 
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AppConfiguracoesRoute = AppConfiguracoesRouteImport.update({
-  id: '/configuracoes',
-  path: '/configuracoes',
-  getParentRoute: () => AppRoute,
+const AuthenticatedSemAcessoRoute = AuthenticatedSemAcessoRouteImport.update({
+  id: '/sem-acesso',
+  path: '/sem-acesso',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AppClientesRoute = AppClientesRouteImport.update({
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedClientesRoute = AuthenticatedClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AppCampanhasRoute = AppCampanhasRouteImport.update({
+const AuthenticatedCampanhasRoute = AuthenticatedCampanhasRouteImport.update({
   id: '/campanhas',
   path: '/campanhas',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AppCalendarioRoute = AppCalendarioRouteImport.update({
+const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
   id: '/calendario',
   path: '/calendario',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AppAnalyticsRoute = AppAnalyticsRouteImport.update({
+const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AppAjudaRoute = AppAjudaRouteImport.update({
+const AuthenticatedAjudaRoute = AuthenticatedAjudaRouteImport.update({
   id: '/ajuda',
   path: '/ajuda',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdministracaoRoute =
+  AuthenticatedAdministracaoRouteImport.update({
+    id: '/administracao',
+    path: '/administracao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AppIndexRoute
-  '/ajuda': typeof AppAjudaRoute
-  '/analytics': typeof AppAnalyticsRoute
-  '/calendario': typeof AppCalendarioRoute
-  '/campanhas': typeof AppCampanhasRoute
-  '/clientes': typeof AppClientesRoute
-  '/configuracoes': typeof AppConfiguracoesRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/auth': typeof AuthRoute
+  '/administracao': typeof AuthenticatedAdministracaoRoute
+  '/ajuda': typeof AuthenticatedAjudaRoute
+  '/analytics': typeof AuthenticatedAnalyticsRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
+  '/campanhas': typeof AuthenticatedCampanhasRoute
+  '/clientes': typeof AuthenticatedClientesRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/sem-acesso': typeof AuthenticatedSemAcessoRoute
 }
 export interface FileRoutesByTo {
-  '/ajuda': typeof AppAjudaRoute
-  '/analytics': typeof AppAnalyticsRoute
-  '/calendario': typeof AppCalendarioRoute
-  '/campanhas': typeof AppCampanhasRoute
-  '/clientes': typeof AppClientesRoute
-  '/configuracoes': typeof AppConfiguracoesRoute
-  '/': typeof AppIndexRoute
+  '/auth': typeof AuthRoute
+  '/administracao': typeof AuthenticatedAdministracaoRoute
+  '/ajuda': typeof AuthenticatedAjudaRoute
+  '/analytics': typeof AuthenticatedAnalyticsRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
+  '/campanhas': typeof AuthenticatedCampanhasRoute
+  '/clientes': typeof AuthenticatedClientesRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/sem-acesso': typeof AuthenticatedSemAcessoRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_app': typeof AppRouteWithChildren
-  '/_app/ajuda': typeof AppAjudaRoute
-  '/_app/analytics': typeof AppAnalyticsRoute
-  '/_app/calendario': typeof AppCalendarioRoute
-  '/_app/campanhas': typeof AppCampanhasRoute
-  '/_app/clientes': typeof AppClientesRoute
-  '/_app/configuracoes': typeof AppConfiguracoesRoute
-  '/_app/': typeof AppIndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/administracao': typeof AuthenticatedAdministracaoRoute
+  '/_authenticated/ajuda': typeof AuthenticatedAjudaRoute
+  '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
+  '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
+  '/_authenticated/campanhas': typeof AuthenticatedCampanhasRoute
+  '/_authenticated/clientes': typeof AuthenticatedClientesRoute
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/_authenticated/sem-acesso': typeof AuthenticatedSemAcessoRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
+    | '/administracao'
     | '/ajuda'
     | '/analytics'
     | '/calendario'
     | '/campanhas'
     | '/clientes'
     | '/configuracoes'
+    | '/sem-acesso'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/auth'
+    | '/administracao'
     | '/ajuda'
     | '/analytics'
     | '/calendario'
     | '/campanhas'
     | '/clientes'
     | '/configuracoes'
+    | '/sem-acesso'
     | '/'
   id:
     | '__root__'
-    | '/_app'
-    | '/_app/ajuda'
-    | '/_app/analytics'
-    | '/_app/calendario'
-    | '/_app/campanhas'
-    | '/_app/clientes'
-    | '/_app/configuracoes'
-    | '/_app/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/administracao'
+    | '/_authenticated/ajuda'
+    | '/_authenticated/analytics'
+    | '/_authenticated/calendario'
+    | '/_authenticated/campanhas'
+    | '/_authenticated/clientes'
+    | '/_authenticated/configuracoes'
+    | '/_authenticated/sem-acesso'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AppRoute: typeof AppRouteWithChildren
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_app': {
-      id: '/_app'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AppRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/': {
-      id: '/_app/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_app/configuracoes': {
-      id: '/_app/configuracoes'
+    '/_authenticated/sem-acesso': {
+      id: '/_authenticated/sem-acesso'
+      path: '/sem-acesso'
+      fullPath: '/sem-acesso'
+      preLoaderRoute: typeof AuthenticatedSemAcessoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
       path: '/configuracoes'
       fullPath: '/configuracoes'
-      preLoaderRoute: typeof AppConfiguracoesRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_app/clientes': {
-      id: '/_app/clientes'
+    '/_authenticated/clientes': {
+      id: '/_authenticated/clientes'
       path: '/clientes'
       fullPath: '/clientes'
-      preLoaderRoute: typeof AppClientesRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedClientesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_app/campanhas': {
-      id: '/_app/campanhas'
+    '/_authenticated/campanhas': {
+      id: '/_authenticated/campanhas'
       path: '/campanhas'
       fullPath: '/campanhas'
-      preLoaderRoute: typeof AppCampanhasRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedCampanhasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_app/calendario': {
-      id: '/_app/calendario'
+    '/_authenticated/calendario': {
+      id: '/_authenticated/calendario'
       path: '/calendario'
       fullPath: '/calendario'
-      preLoaderRoute: typeof AppCalendarioRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_app/analytics': {
-      id: '/_app/analytics'
+    '/_authenticated/analytics': {
+      id: '/_authenticated/analytics'
       path: '/analytics'
       fullPath: '/analytics'
-      preLoaderRoute: typeof AppAnalyticsRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_app/ajuda': {
-      id: '/_app/ajuda'
+    '/_authenticated/ajuda': {
+      id: '/_authenticated/ajuda'
       path: '/ajuda'
       fullPath: '/ajuda'
-      preLoaderRoute: typeof AppAjudaRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAjudaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/administracao': {
+      id: '/_authenticated/administracao'
+      path: '/administracao'
+      fullPath: '/administracao'
+      preLoaderRoute: typeof AuthenticatedAdministracaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
-interface AppRouteChildren {
-  AppAjudaRoute: typeof AppAjudaRoute
-  AppAnalyticsRoute: typeof AppAnalyticsRoute
-  AppCalendarioRoute: typeof AppCalendarioRoute
-  AppCampanhasRoute: typeof AppCampanhasRoute
-  AppClientesRoute: typeof AppClientesRoute
-  AppConfiguracoesRoute: typeof AppConfiguracoesRoute
-  AppIndexRoute: typeof AppIndexRoute
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdministracaoRoute: typeof AuthenticatedAdministracaoRoute
+  AuthenticatedAjudaRoute: typeof AuthenticatedAjudaRoute
+  AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
+  AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
+  AuthenticatedCampanhasRoute: typeof AuthenticatedCampanhasRoute
+  AuthenticatedClientesRoute: typeof AuthenticatedClientesRoute
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
+  AuthenticatedSemAcessoRoute: typeof AuthenticatedSemAcessoRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
-const AppRouteChildren: AppRouteChildren = {
-  AppAjudaRoute: AppAjudaRoute,
-  AppAnalyticsRoute: AppAnalyticsRoute,
-  AppCalendarioRoute: AppCalendarioRoute,
-  AppCampanhasRoute: AppCampanhasRoute,
-  AppClientesRoute: AppClientesRoute,
-  AppConfiguracoesRoute: AppConfiguracoesRoute,
-  AppIndexRoute: AppIndexRoute,
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdministracaoRoute: AuthenticatedAdministracaoRoute,
+  AuthenticatedAjudaRoute: AuthenticatedAjudaRoute,
+  AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
+  AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
+  AuthenticatedCampanhasRoute: AuthenticatedCampanhasRoute,
+  AuthenticatedClientesRoute: AuthenticatedClientesRoute,
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
+  AuthenticatedSemAcessoRoute: AuthenticatedSemAcessoRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  AppRoute: AppRouteWithChildren,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

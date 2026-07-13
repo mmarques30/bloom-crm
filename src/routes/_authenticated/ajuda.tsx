@@ -1,15 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Topbar } from "@/components/topbar";
 import { LifeBuoy, Mail, MessageCircle } from "lucide-react";
+import { ensurePermission } from "@/lib/permission-guard";
 
-export const Route = createFileRoute("/_app/ajuda")({
+export const Route = createFileRoute("/_authenticated/ajuda")({
+  beforeLoad: async () => {
+    if (!(await ensurePermission("screen.ajuda"))) throw redirect({ to: "/sem-acesso" });
+  },
   component: HelpPage,
-  head: () => ({
-    meta: [
-      { title: "Ajuda & suporte · Star CRM" },
-      { name: "description", content: "Central de ajuda, documentação e canais de contato." },
-    ],
-  }),
+  head: () => ({ meta: [{ title: "Ajuda & suporte · Star CRM" }] }),
 });
 
 function HelpPage() {

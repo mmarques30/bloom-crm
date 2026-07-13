@@ -1,8 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Topbar } from "@/components/topbar";
 import { ArrowUpRight } from "lucide-react";
+import { ensurePermission } from "@/lib/permission-guard";
 
-export const Route = createFileRoute("/_app/analytics")({
+export const Route = createFileRoute("/_authenticated/analytics")({
+  beforeLoad: async () => {
+    if (!(await ensurePermission("screen.analytics"))) throw redirect({ to: "/sem-acesso" });
+  },
   component: AnalyticsPage,
   head: () => ({
     meta: [
