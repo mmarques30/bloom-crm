@@ -90,10 +90,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         property: "og:description",
         content:
-          "Clientes, calendário de conteúdo, campanhas e performance — em um único painel com identidade de marca.",
+          "CRM para agências e times de social media: clientes, calendário de conteúdo, campanhas e performance em um só lugar.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Star CRM — Gestão criativa para social media" },
+      { name: "twitter:description", content: "CRM para agências e times de social media: clientes, calendário de conteúdo, campanhas e performance em um só lugar." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/916862c1-9790-420c-93bf-9553a7a4470c/id-preview-015af759--fdfdd09e-28e7-4e2c-b626-54fe450a7355.lovable.app-1783979719554.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/916862c1-9790-420c-93bf-9553a7a4470c/id-preview-015af759--fdfdd09e-28e7-4e2c-b626-54fe450a7355.lovable.app-1783979719554.png" },
     ],
     links: [
       {
