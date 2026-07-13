@@ -1,4 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   Users,
@@ -8,38 +9,81 @@ import {
   Settings,
   LifeBuoy,
   Search,
+  ShieldCheck,
+  LogOut,
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { usePermissions, hasPermission } from "@/hooks/use-permissions";
+import { invalidatePermissionsCache } from "@/lib/permission-guard";
 
-type NavItem = { to: string; label: string; icon: React.ComponentType<{ className?: string }> };
+type NavItem = {
+  to: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  permission?: string;
+  adminOnly?: boolean;
+};
 
 const groups: { title: string; items: NavItem[] }[] = [
   {
     title: "Operacional",
     items: [
-      { to: "/", label: "Dashboard", icon: LayoutDashboard },
-      { to: "/clientes", label: "Clientes", icon: Users },
-      { to: "/calendario", label: "Calendário", icon: CalendarDays },
-      { to: "/campanhas", label: "Campanhas", icon: Megaphone },
+      { to: "/", label: "Dashboard", icon: LayoutDashboard, permission: "menu.dashboard" },
+      { to: "/clientes", label: "Clientes", icon: Users, permission: "menu.clientes" },
+      { to: "/calendario", label: "Calendário", icon: CalendarDays, permission: "menu.calendario" },
+      { to: "/campanhas", label: "Campanhas", icon: Megaphone, permission: "menu.campanhas" },
     ],
   },
   {
     title: "Analítico",
-    items: [{ to: "/analytics", label: "Performance", icon: BarChart3 }],
+    items: [
+      { to: "/analytics", label: "Performance", icon: BarChart3, permission: "menu.analytics" },
+    ],
   },
   {
     title: "Sistema",
     items: [
-      { to: "/configuracoes", label: "Configurações", icon: Settings },
-      { to: "/ajuda", label: "Ajuda & suporte", icon: LifeBuoy },
+      { to: "/configuracoes", label: "Configurações", icon: Settings, permission: "menu.configuracoes" },
+      { to: "/ajuda", label: "Ajuda & suporte", icon: LifeBuoy, permission: "menu.ajuda" },
+    ],
+  },
+  {
+    title: "Administração",
+    items: [
+      { to: "/administracao", label: "Acessos & usuários", icon: ShieldCheck, adminOnly: true },
     ],
   },
 ];
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const { data: perms } = usePermissions();
+
+  async function signOut() {
+    await qc.cancelQueries();
+    qc.clear();
+    invalidatePermissionsCache();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  }
+
+  const visibleGroups = groups
+    .map((g) => ({
+      ...g,
+      items: g.items.filter((item) => {
+        if (item.adminOnly) return perms?.isAdmin;
+        if (!item.permission) return true;
+        return hasPermission(perms, item.permission);
+      }),
+    }))
+    .filter((g) => g.items.length > 0);
+
+  const initials = (perms?.userId ? "AC" : "?");
 
   return (
     <aside className="hidden lg:flex h-screen w-[260px] shrink-0 flex-col border-r border-border bg-sidebar sticky top-0">
@@ -57,8 +101,8 @@ export function AppSidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 space-y-6 px-3 pb-4">
-        {groups.map((g) => (
+      <nav className="flex-1 space-y-6 overflow-y-auto px-3 pb-4">
+        {visibleGroups.map((g) => (
           <div key={g.title}>
             <div className="px-3 pb-2 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
               {g.title}
@@ -92,12 +136,21 @@ export function AppSidebar() {
       <div className="mx-4 mb-5 rounded-2xl card-ink p-4">
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-full bg-primary/80 flex items-center justify-center font-semibold">
-            AC
+            {initials}
           </div>
-          <div className="min-w-0 leading-tight">
-            <div className="truncate text-sm font-medium">Ana Costa</div>
-            <div className="text-[11px] text-white/60">Head of Content</div>
+          <div className="min-w-0 flex-1 leading-tight">
+            <div className="truncate text-sm font-medium">
+              {perms?.isAdmin ? "Administrador" : "Usuário"}
+            </div>
+            <div className="text-[11px] text-white/60">Star CRM</div>
           </div>
+          <button
+            onClick={signOut}
+            aria-label="Sair"
+            className="rounded-md p-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </aside>
