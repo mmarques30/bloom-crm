@@ -16,6 +16,7 @@ import { BrandMark } from "@/components/brand-mark";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { useProfile } from "@/hooks/use-crm";
 import { usePermissions, hasPermission } from "@/hooks/use-permissions";
 import { invalidatePermissionsCache } from "@/lib/permission-guard";
 
@@ -46,7 +47,12 @@ const groups: { title: string; items: NavItem[] }[] = [
   {
     title: "Sistema",
     items: [
-      { to: "/configuracoes", label: "Configurações", icon: Settings, permission: "menu.configuracoes" },
+      {
+        to: "/configuracoes",
+        label: "Configurações",
+        icon: Settings,
+        permission: "menu.configuracoes",
+      },
       { to: "/ajuda", label: "Ajuda & suporte", icon: LifeBuoy, permission: "menu.ajuda" },
     ],
   },
@@ -63,6 +69,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: perms } = usePermissions();
+  const { data: profile } = useProfile();
 
   async function signOut() {
     await qc.cancelQueries();
@@ -83,7 +90,15 @@ export function AppSidebar() {
     }))
     .filter((g) => g.items.length > 0);
 
-  const initials = (perms?.userId ? "AC" : "?");
+  const nomeExibicao = profile?.full_name || (perms?.isAdmin ? "Administrador" : "Usuário");
+  const initials =
+    nomeExibicao
+      .split(" ")
+      .filter(Boolean)
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "?";
 
   return (
     <aside className="hidden lg:flex h-screen w-[260px] shrink-0 flex-col border-r border-border bg-sidebar sticky top-0">
@@ -139,10 +154,8 @@ export function AppSidebar() {
             {initials}
           </div>
           <div className="min-w-0 flex-1 leading-tight">
-            <div className="truncate text-sm font-medium">
-              {perms?.isAdmin ? "Administrador" : "Usuário"}
-            </div>
-            <div className="text-[11px] text-white/60">Star CRM</div>
+            <div className="truncate text-sm font-medium">{nomeExibicao}</div>
+            <div className="text-[11px] text-white/60">{profile?.cargo || "Star CRM"}</div>
           </div>
           <button
             onClick={signOut}
