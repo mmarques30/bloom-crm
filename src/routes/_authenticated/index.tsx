@@ -1,7 +1,10 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Topbar } from "@/components/topbar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { useCrmDialogs } from "@/components/crm-dialogs";
+import { fmtBRL, isoDate, useCampanhas, useConteudos, useProfile } from "@/hooks/use-crm";
+import { ensurePermission } from "@/lib/permission-guard";
 import {
   Instagram,
   Music2,
@@ -16,7 +19,6 @@ import {
   Megaphone,
   Send,
 } from "lucide-react";
-import { ensurePermission } from "@/lib/permission-guard";
 
 export const Route = createFileRoute("/_authenticated/")({
   beforeLoad: async () => {
@@ -28,17 +30,13 @@ export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Dashboard · Star CRM" },
-      { name: "description", content: "Visão geral de hoje: agenda de conteúdo, aprovações e performance por canal." },
+      {
+        name: "description",
+        content: "Visão geral de hoje: agenda de conteúdo, aprovações e performance por canal.",
+      },
     ],
   }),
 });
-
-const schedule = [
-  { time: "09:00", type: "Post feed", brand: "Loja Aurora", status: "Aprovado" },
-  { time: "11:30", type: "Reels", brand: "Café Iris", status: "Aguardando" },
-  { time: "14:00", type: "Stories x3", brand: "Studio Nube", status: "Rascunho" },
-  { time: "17:00", type: "Anúncio Meta", brand: "Loja Aurora", status: "Em revisão" },
-];
 
 const channels = [
   { name: "Instagram", icon: Instagram, value: "128.4k", delta: "+8.5%", up: true, progress: 72 },
@@ -47,41 +45,106 @@ const channels = [
   { name: "LinkedIn", icon: Linkedin, value: "18.9k", delta: "+3.1%", up: true, progress: 42 },
 ];
 
-const quickActions = [
-  { label: "Novo post", icon: ImagePlus },
-  { label: "Novo cliente", icon: UserPlus },
-  { label: "Nova campanha", icon: Megaphone },
-  { label: "Enviar aprovação", icon: Send },
-];
+function saudacao() {
+  const h = new Date().getHours();
+  if (h < 12) return "Bom dia";
+  if (h < 18) return "Boa tarde";
+  return "Boa noite";
+}
 
 function Dashboard() {
+  const dialogs = useCrmDialogs();
+  const { data: profile } = useProfile();
+  const hoje = isoDate(new Date());
+  const { data: conteudosHoje = [], isLoading } = useConteudos(hoje, hoje);
+  const { data: todos = [] } = useConteudos();
+  const { data: campanhas = [] } = useCampanhas();
+
+  const pendentes = todos.filter(
+    (c) => c.status === "Aguardando" || c.status === "Em revisão",
+  ).length;
+  const primeiroNome = (profile?.full_name || "").split(" ")[0];
+
+  const ativas = campanhas.filter((c) => c.status === "Ativa");
+  const totalOrc = ativas.reduce((a, c) => a + c.orcamento_centavos, 0);
+  const totalCons = ativas.reduce((a, c) => a + c.consumido_centavos, 0);
+  const pctMedia = totalOrc ? Math.min(100, Math.round((totalCons / totalOrc) * 100)) : 0;
+
+  const quickActions = [
+    { label: "Novo post", icon: ImagePlus, onClick: () => dialogs.openConteudo() },
+    { label: "Novo cliente", icon: UserPlus, onClick: () => dialogs.openCliente() },
+    { label: "Nova campanha", icon: Megaphone, onClick: () => dialogs.openCampanha() },
+    { label: "Enviar aprovação", icon: Send, onClick: () => dialogs.openConteudo() },
+  ];
+
   return (
     <>
-      <Topbar title="Bom dia" subtitle="Você tem 4 aprovações pendentes e 12 posts agendados para hoje." />
+      <Topbar
+        title={`${saudacao()}${primeiroNome ? `, ${primeiroNome}` : ""}`}
+        subtitle={`Você tem ${pendentes} aprovação(ões) pendente(s) e ${conteudosHoje.length} conteúdo(s) agendado(s) para hoje.`}
+      />
 
       <div className="grid gap-5 p-6 xl:grid-cols-12">
+        {/* Agenda */}
         <section className="xl:col-span-7 rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="font-display text-xl">Agenda de hoje</h2>
-              <p className="text-xs text-muted-foreground">Terça, 14 de julho</p>
+              <p className="text-xs text-muted-foreground">
+                {new Date().toLocaleDateString("pt-BR", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                })}
+              </p>
             </div>
-            <Button variant="ghost" size="sm" className="pill text-primary hover:text-primary">Ver tudo</Button>
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="pill text-primary hover:text-primary"
+            >
+              <Link to="/calendario">Ver tudo</Link>
+            </Button>
           </div>
-          <ul className="divide-y divide-border">
-            {schedule.map((item) => (
-              <li key={item.time} className="flex items-center gap-4 py-3">
-                <div className="w-14 text-sm font-semibold text-foreground/80">{item.time}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium">{item.type}</div>
-                  <div className="text-xs text-muted-foreground">{item.brand}</div>
-                </div>
-                <StatusPill status={item.status} />
-              </li>
-            ))}
-          </ul>
+          {isLoading ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">Carregando…</p>
+          ) : conteudosHoje.length === 0 ? (
+            <div className="py-10 text-center">
+              <p className="text-sm text-muted-foreground">Nenhum conteúdo agendado para hoje.</p>
+              <Button
+                className="pill mt-4"
+                size="sm"
+                onClick={() => dialogs.openConteudo(undefined, hoje)}
+              >
+                Agendar conteúdo
+              </Button>
+            </div>
+          ) : (
+            <ul className="divide-y divide-border">
+              {conteudosHoje.map((item) => (
+                <li key={item.id} className="flex items-center gap-4 py-3">
+                  <div className="w-14 text-sm font-semibold text-foreground/80">
+                    {item.hora.slice(0, 5)}
+                  </div>
+                  <button
+                    type="button"
+                    className="flex-1 min-w-0 text-left"
+                    onClick={() => dialogs.openConteudo(item)}
+                  >
+                    <div className="text-sm font-medium">{item.titulo}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {item.tipo} · {item.clientes?.nome ?? "—"}
+                    </div>
+                  </button>
+                  <StatusPill status={item.status} />
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
+        {/* Quick actions */}
         <section className="xl:col-span-5 rounded-2xl border border-border bg-card p-5">
           <h2 className="font-display text-xl">Ações rápidas</h2>
           <p className="mb-4 text-xs text-muted-foreground">Atalhos para o que você mais faz.</p>
@@ -89,6 +152,7 @@ function Dashboard() {
             {quickActions.map((a) => (
               <button
                 key={a.label}
+                onClick={a.onClick}
                 className="group flex flex-col items-start gap-3 rounded-xl border border-border bg-background p-4 text-left transition-all hover:border-primary/40 hover:bg-secondary"
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -100,27 +164,34 @@ function Dashboard() {
           </div>
         </section>
 
+        {/* Mídia paga real */}
         <section className="xl:col-span-5 rounded-2xl card-ink p-6">
-          <div className="text-[11px] uppercase tracking-[0.18em] text-white/60">Impacto do mês</div>
+          <div className="text-[11px] uppercase tracking-[0.18em] text-white/60">
+            Mídia paga · campanhas ativas
+          </div>
           <div className="mt-2 flex items-baseline gap-3">
-            <div className="font-display text-5xl leading-none">2.4M</div>
+            <div className="font-display text-5xl leading-none">{fmtBRL(totalCons)}</div>
             <div className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/80">
-              <ArrowUpRight className="h-3 w-3" /> +18.2% vs mês passado
+              <ArrowUpRight className="h-3 w-3" /> {pctMedia}% de {fmtBRL(totalOrc)}
             </div>
           </div>
-          <p className="mt-1 text-sm text-white/60">Alcance combinado em todos os canais.</p>
+          <p className="mt-1 text-sm text-white/60">Consumo consolidado das campanhas ativas.</p>
+
           <div className="mt-6 grid grid-cols-3 gap-4">
-            <MiniStat label="Engajamento" value="6.8%" />
-            <MiniStat label="Novos seguidores" value="+9.1k" />
-            <MiniStat label="ROI de mídia" value="3.4x" />
+            <MiniStat label="Campanhas ativas" value={String(ativas.length)} />
+            <MiniStat label="Aprovações pend." value={String(pendentes)} />
+            <MiniStat label="Posts hoje" value={String(conteudosHoje.length)} />
           </div>
         </section>
 
+        {/* Channel performance (ilustrativo até integrar redes) */}
         <section className="xl:col-span-7 rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="font-display text-xl">Performance por canal</h2>
-              <p className="text-xs text-muted-foreground">Alcance nos últimos 30 dias</p>
+              <p className="text-xs text-muted-foreground">
+                Ilustrativo — liga nas APIs das redes na v2
+              </p>
             </div>
             <div className="inline-flex rounded-full bg-muted p-1">
               {["Semana", "Mês", "Trimestre"].map((t, i) => (
@@ -153,7 +224,11 @@ function Dashboard() {
                       (c.up ? "text-[color:var(--success)]" : "text-[color:var(--danger)]")
                     }
                   >
-                    {c.up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                    {c.up ? (
+                      <ArrowUpRight className="h-3 w-3" />
+                    ) : (
+                      <ArrowDownRight className="h-3 w-3" />
+                    )}
                     {c.delta}
                   </span>
                 </div>
@@ -179,7 +254,11 @@ function MiniStat({ label, value }: { label: string; value: string }) {
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, { icon: React.ComponentType<{ className?: string }>; cls: string }> = {
-    Aprovado: { icon: CheckCircle2, cls: "bg-[color:var(--success)]/10 text-[color:var(--success)]" },
+    Aprovado: {
+      icon: CheckCircle2,
+      cls: "bg-[color:var(--success)]/10 text-[color:var(--success)]",
+    },
+    Publicado: { icon: CheckCircle2, cls: "bg-[color:var(--ink)] text-white" },
     Aguardando: { icon: Clock, cls: "bg-primary/10 text-primary" },
     Rascunho: { icon: Clock, cls: "bg-muted text-muted-foreground" },
     "Em revisão": { icon: Clock, cls: "bg-secondary text-secondary-foreground" },
@@ -187,7 +266,11 @@ function StatusPill({ status }: { status: string }) {
   const item = map[status] ?? map.Rascunho;
   const Icon = item.icon;
   return (
-    <span className={"pill inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium " + item.cls}>
+    <span
+      className={
+        "pill inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium " + item.cls
+      }
+    >
       <Icon className="h-3 w-3" />
       {status}
     </span>
