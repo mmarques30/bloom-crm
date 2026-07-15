@@ -14,6 +14,127 @@ export type Database = {
   }
   public: {
     Tables: {
+      campanhas: {
+        Row: {
+          cliente_id: string
+          consumido_centavos: number
+          created_at: string
+          id: string
+          nome: string
+          orcamento_centavos: number
+          status: string
+          termina_em: string | null
+          updated_at: string
+        }
+        Insert: {
+          cliente_id: string
+          consumido_centavos?: number
+          created_at?: string
+          id?: string
+          nome: string
+          orcamento_centavos?: number
+          status?: string
+          termina_em?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cliente_id?: string
+          consumido_centavos?: number
+          created_at?: string
+          id?: string
+          nome?: string
+          orcamento_centavos?: number
+          status?: string
+          termina_em?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campanhas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clientes: {
+        Row: {
+          canais: string[]
+          created_at: string
+          id: string
+          nome: string
+          plano: string
+          segmento: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          canais?: string[]
+          created_at?: string
+          id?: string
+          nome: string
+          plano?: string
+          segmento?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          canais?: string[]
+          created_at?: string
+          id?: string
+          nome?: string
+          plano?: string
+          segmento?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      conteudos: {
+        Row: {
+          agendado_para: string
+          cliente_id: string
+          created_at: string
+          hora: string
+          id: string
+          status: string
+          tipo: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          agendado_para: string
+          cliente_id: string
+          created_at?: string
+          hora?: string
+          id?: string
+          status?: string
+          tipo?: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          agendado_para?: string
+          cliente_id?: string
+          created_at?: string
+          hora?: string
+          id?: string
+          status?: string
+          tipo?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conteudos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permissions: {
         Row: {
           category: string
@@ -38,29 +159,59 @@ export type Database = {
         }
         Relationships: []
       }
+      preferencias: {
+        Row: {
+          alerta_campanha: boolean
+          aprovacoes: boolean
+          resumo_diario: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alerta_campanha?: boolean
+          aprovacoes?: boolean
+          resumo_diario?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alerta_campanha?: boolean
+          aprovacoes?: boolean
+          resumo_diario?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          cargo: string
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          telefone: string
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          cargo?: string
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
+          telefone?: string
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          cargo?: string
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          telefone?: string
           updated_at?: string
         }
         Relationships: []
